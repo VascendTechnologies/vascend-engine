@@ -21,7 +21,7 @@ foreach($target in @($engine,$desktop)){
 Copy-Item (Join-Path $root 'artifacts\engine\*') "$engine\bin" -Recurse -Force
 Copy-Item (Join-Path $root 'artifacts\desktop\*') "$desktop\bin" -Recurse -Force
 Copy-Item (Join-Path $root 'apps\barra-vascend\assets\*') $desktop -Force
-Copy-Item (Join-Path $root 'docs\EXTENSIONS*.md') "$engine\EXTENSIONS.md" -Force
+Copy-Item (Join-Path $root 'docs\EXTENSIONS*.md') $engine -Force
 New-Item -ItemType Directory -Path "$engine\community-example" -Force | Out-Null
 Copy-Item (Join-Path $root 'examples\community-example\*') "$engine\community-example" -Recurse -Force
 $taskbarScript=Join-Path $env:USERPROFILE '.config\yasb\barra-windows.ps1'
