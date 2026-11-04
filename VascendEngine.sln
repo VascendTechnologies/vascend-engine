@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VascendEngine", "apps\vascend-engine\src\VascendEngine.csproj", "{D447B391-13B0-49CE-A546-F8BE1E693B01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarraVascend", "apps\barra-vascend\src\BarraVascend.csproj", "{8F998E2C-3D5A-41B9-91C8-D86B919B4601}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D447B391-13B0-49CE-A546-F8BE1E693B01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D447B391-13B0-49CE-A546-F8BE1E693B01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D447B391-13B0-49CE-A546-F8BE1E693B01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D447B391-13B0-49CE-A546-F8BE1E693B01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F998E2C-3D5A-41B9-91C8-D86B919B4601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F998E2C-3D5A-41B9-91C8-D86B919B4601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F998E2C-3D5A-41B9-91C8-D86B919B4601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F998E2C-3D5A-41B9-91C8-D86B919B4601}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

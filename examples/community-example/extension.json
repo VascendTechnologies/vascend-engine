@@ -1,0 +1,30 @@
+{
+  "apiVersion": 1,
+  "id": "community.esempio",
+  "name": "La mia estensione",
+  "version": "1.0.0",
+  "author": "Community",
+  "description": "Un esempio di pagina interna con impostazioni persistenti.",
+  "settings": [
+    {
+      "key": "enabled",
+      "label": "Funzione abilitata",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "message",
+      "label": "Messaggio",
+      "type": "string",
+      "default": "Ciao Vascend"
+    },
+    {
+      "key": "interval",
+      "label": "Intervallo in secondi",
+      "type": "number",
+      "default": 30
+    }
+  ],
+  "conflictsWith": [],
+  "exclusiveResources": []
+}
