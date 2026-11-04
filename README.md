@@ -44,7 +44,11 @@ The built-in **Vascend Technologies** extension includes desktop appearance, a c
 
 Desktop integrations depend on the corresponding apps being installed. The Wi-Fi connection-quality API and some Windows features depend on OS and driver support.
 
-### Build and install
+### Download the Windows app
+
+Download the latest **Windows x64 ZIP** from [Releases](https://github.com/VascendTechnologies/vascend-engine/releases/latest), extract all files and run `Install.cmd`. Release packages include the .NET runtime, install per user and add a Start menu shortcut. Close Engine and its desktop component before updating.
+
+### Build and install from source
 
 Run these commands in **PowerShell on Windows**:
 
@@ -71,7 +75,7 @@ dotnet build .\VascendEngine.sln -c Release
 .\tools\build.ps1
 ```
 
-Published output is written to `artifacts/engine` and `artifacts/desktop`. The .NET runtime is not bundled.
+Published output is written to `artifacts/engine` and `artifacts/desktop`. These development builds require the .NET runtime. To build a self-contained release ZIP, run `.\tools\package.ps1 -Version 1.0.0`; output goes to `artifacts/releases`.
 
 ## Community extensions
 

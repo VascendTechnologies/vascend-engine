@@ -1,0 +1,21 @@
+Vascend Engine 1.0.0 - Windows x64
+
+1. Extract the entire ZIP into a local folder.
+2. Close Vascend Engine and the Vascend desktop component if running.
+3. Double-click Install.cmd.
+
+Installation is per user; administrator access and a separate .NET
+installation are not required. A shortcut is added to the Start menu.
+
+Application: %USERPROFILE%\.config\vascend-engine\bin\VascendEngine.exe
+Desktop component: %USERPROFILE%\.config\barra-vascend\bin\BarraVascend.exe
+
+Existing settings and extension activation state are preserved when updating.
+Previous binaries are backed up under each application's backups folder.
+Vascend Technologies starts disabled on a fresh installation.
+English is the default language; EN / IT and the flag select the interface language.
+
+The ZIP is an installation package. Running its application files directly
+without installing does not configure the desktop component's expected paths.
+
+Source and documentation: https://github.com/VascendTechnologies/vascend-engine
