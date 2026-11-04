@@ -48,7 +48,7 @@ partial class Finestra : Window, IFinestraPixel
         ResizeMode = ResizeMode.CanResize;
         Background = Brushes.Transparent;
         UseLayoutRounding = true;
-        Title = "Vascend Engine";
+        Title=I18n.Translate("Vascend Engine");
         FontFamily = Tema.Testo;
         Foreground = Tema.Bianco;
         Width = 1220; Height = 780; MinWidth = 960; MinHeight = 620;
@@ -67,7 +67,7 @@ partial class Finestra : Window, IFinestraPixel
 
         var alto = new Grid { Background = Brushes.Transparent };
         alto.MouseLeftButtonDown += (_, e) => { if (e.ClickCount == 2) Massimizza(); else Trascina(); };
-        var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(28, 0, 150, 0), VerticalAlignment = VerticalAlignment.Center };
+        var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(28, 0, 250, 0), VerticalAlignment = VerticalAlignment.Center };
         var logo = Logo(26);
         logo.Margin = new Thickness(0, 0, 12, 0);
         brand.Children.Add(logo);
@@ -75,6 +75,19 @@ partial class Finestra : Window, IFinestraPixel
         brand.Children.Add(titolo);
         alto.Children.Add(brand);
         var tastiFin = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 8, 0) };
+        var lingue=new StackPanel {Orientation=Orientation.Horizontal,VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(0,0,14,0)};
+        var italiano=Pulsante("IT",()=>I18n.SetLanguage("it"));var english=Pulsante("EN",()=>I18n.SetLanguage("en"));
+        foreach(var languageButton in new[]{italiano,english}){languageButton.Padding=new Thickness(8,4,8,4);languageButton.Margin=new Thickness(0,0,3,0);languageButton.MinWidth=32;lingue.Children.Add(languageButton);}
+        italiano.ToolTip="Italiano";english.ToolTip="English";
+        System.Windows.Automation.AutomationProperties.SetName(italiano,"Italiano");System.Windows.Automation.AutomationProperties.SetName(english,"English");
+        void AggiornaLingua(object sender,EventArgs args)
+        {
+            italiano.BorderBrush=I18n.Language == "it" ? Tema.LimePennello : Contorno;
+            english.BorderBrush=I18n.Language == "en" ? Tema.LimePennello : Contorno;
+        }
+        AggiornaLingua(null,EventArgs.Empty);I18n.LanguageChanged+=AggiornaLingua;
+        Closed+=(_,_)=>I18n.LanguageChanged-=AggiornaLingua;
+        tastiFin.Children.Add(lingue);
         tastiFin.Children.Add(new Tasto(IconeEngine.Create("minimize",14), 40, 32) { Sinistro = () => WindowState = WindowState.Minimized });
         tastiFin.Children.Add(new Tasto(IconeEngine.Create("maximize",14), 40, 32) { Sinistro = Massimizza });
         tastiFin.Children.Add(new Tasto(IconeEngine.Create("close",14), 40, 32) { Sinistro = Close });
@@ -449,7 +462,7 @@ partial class Finestra : Window, IFinestraPixel
 
     void Esporta()
     {
-        var d = new Microsoft.Win32.SaveFileDialog { FileName = "tema-ghiaccio-1.0.0.vsix", Filter = "Estensione VS Code|*.vsix", InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads" };
+        var d = new Microsoft.Win32.SaveFileDialog { FileName = "tema-ghiaccio-1.0.0.vsix", Filter = I18n.Translate("Estensione VS Code|*.vsix"), InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads" };
         if (d.ShowDialog(this) != true) return;
         try { Generatori.Vsix(stile, d.FileName); Esito("tema esportato"); }
         catch (Exception e) { Esito(e.Message, true); }
@@ -864,7 +877,7 @@ partial class Finestra : Window, IFinestraPixel
                 el = o;
                 break;
             case "data":
-                var it = new System.Globalization.CultureInfo("it-IT");
+                var it = I18n.Culture;
                 var sp = new StackPanel();
                 sp.Children.Add(T(it.TextInfo.ToTitleCase(DateTime.Now.ToString("dddd", it)), d * .55));
                 sp.Children.Add(T(DateTime.Now.ToString("d MMMM", it), d, FontWeights.SemiBold));
@@ -952,7 +965,7 @@ partial class Finestra : Window, IFinestraPixel
         g.Children.Add(n);
         var t = TastoBordato("\uE8E5", "Scegli", () =>
         {
-            var d = new Microsoft.Win32.OpenFileDialog { Filter = "Immagini|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp", InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) };
+            var d = new Microsoft.Win32.OpenFileDialog { Filter = I18n.Translate("Immagini|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp"), InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) };
             if (d.ShowDialog(this) != true) return;
             w.Immagine = d.FileName;
             ridisegna();
@@ -1016,7 +1029,7 @@ partial class Finestra : Window, IFinestraPixel
             VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(14, 0, 0, 0),
             Sinistro = () =>
             {
-                var d = new Microsoft.Win32.OpenFileDialog { Filter = "Immagini|*.jpg;*.jpeg;*.png;*.bmp;*.webp", InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) };
+                var d = new Microsoft.Win32.OpenFileDialog { Filter = I18n.Translate("Immagini|*.jpg;*.jpeg;*.png;*.bmp;*.webp"), InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) };
                 if (d.ShowDialog(this) != true) return;
                 Sistema.ImpostaSfondo(d.FileName);
                 Carica();

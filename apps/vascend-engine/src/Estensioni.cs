@@ -22,6 +22,7 @@ public sealed class ExtensionContext
 {
     public string ExtensionDirectory { get; }
     public string SettingsPath { get; }
+    public string Language => I18n.Language;
     public System.Threading.CancellationToken ActivationToken { get; internal set; }
     public ExtensionContext(string directory, string settingsPath) { ExtensionDirectory = directory; SettingsPath = settingsPath; }
     public Dictionary<string, JsonElement> LoadSettings() => File.Exists(SettingsPath)
@@ -182,18 +183,29 @@ partial class Finestra
         name.Margin = new Thickness(14, 0, 0, 0);
         header.Children.Add(name);
         root.Children.Add(header);
-        var tabs = new WrapPanel();
-        foreach (var entry in Sezioni)
+        var tabs = new StackPanel {Orientation=Orientation.Horizontal};
+        var entries=Sezioni.ToArray();
+        for(int index=0;index<entries.Length;index++)
         {
-            string glyph = entry.nome switch {
-                "Stile" => "palette", "Barra" => "layout", "Isola" => "island", "Widget" => "grid",
-                "Windows" => "window", "Terminali" => "terminal", _ => "code"
+            var entry=entries[index];
+            string glyph=entry.nome switch {
+                "Stile"=>"palette","Font"=>"code","Barra"=>"layout","Isola"=>"island","Widget"=>"grid",
+                "Windows"=>"window","Terminali"=>"terminal",_=>"code"
             };
-            var tab = Pulsante(entry.nome, () => Apri(entry.nome), entry.nome == current, icon: glyph);
-            tab.Margin = new Thickness(0, 0, 6, 6);
-            tabs.Children.Add(tab);
+            bool selected=entry.nome==current;
+            var label=EtichettaAzione(entry.nome,glyph,selected ? Tema.Bianco : Tema.BiancoTenue,12.5,bold:selected);
+            var tab=Bottone(label,()=>Apri(entry.nome),selected,radius:new CornerRadius(0));
+            tab.Padding=new Thickness(12,10,12,10);tab.Margin=new Thickness(0);
+            tab.BorderBrush=System.Windows.Media.Brushes.Transparent;
+            tab.Background=selected ? Tema.Pennello(211,230,93,.11) : System.Windows.Media.Brushes.Transparent;
+            var segment=new Grid();segment.Children.Add(tab);
+            if(selected)segment.Children.Add(new Border {Height=2,Background=Tema.LimePennello,VerticalAlignment=VerticalAlignment.Bottom,Margin=new Thickness(12,0,12,0),IsHitTestVisible=false});
+            if(index>0)tabs.Children.Add(new Border {Width=1,Height=20,Background=Contorno,VerticalAlignment=VerticalAlignment.Center});
+            tabs.Children.Add(segment);
         }
-        root.Children.Add(tabs);
+        var surface=new Border {CornerRadius=new CornerRadius(9),BorderBrush=Contorno,BorderThickness=new Thickness(1),Background=Tema.Pennello(211,218,190,.025),Child=tabs,HorizontalAlignment=HorizontalAlignment.Left};
+        surface.SizeChanged+=(_,_)=>{var clip=new System.Windows.Media.RectangleGeometry(new Rect(surface.RenderSize),9,9);clip.Freeze();surface.Clip=clip;};
+        root.Children.Add(new ScrollViewer {Content=surface,HorizontalScrollBarVisibility=ScrollBarVisibility.Auto,VerticalScrollBarVisibility=ScrollBarVisibility.Disabled,Focusable=false});
         return root;
     }
 
@@ -320,14 +332,14 @@ partial class Finestra
             Child=builtin ? Logo(32) : IconeEngine.Create("extension",24,Tema.Bianco)};
         layout.Children.Add(icon);
         var details=new StackPanel {VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(0,0,12,0)};
-        var name=Tema.Scritta(plugin.Name,14,Tema.Bianco,FontWeights.SemiBold);name.TextTrimming=TextTrimming.CharacterEllipsis;name.ToolTip=plugin.Name;
+        var name=Tema.ScrittaUtente(plugin.Name,14,Tema.Bianco,FontWeights.SemiBold);name.TextTrimming=TextTrimming.CharacterEllipsis;name.ToolTip=plugin.Name;
         if(builtin)
         {
             var titleRow=new DockPanel {HorizontalAlignment=HorizontalAlignment.Left};
             var verified=IconeEngine.Verified();verified.Margin=new Thickness(6,0,0,0);DockPanel.SetDock(verified,Dock.Right);titleRow.Children.Add(verified);titleRow.Children.Add(name);details.Children.Add(titleRow);
         }
         else details.Children.Add(name);
-        var description=Tema.Scritta(plugin.Description ?? "Estensione community",12,Tema.BiancoTenue);description.TextWrapping=TextWrapping.Wrap;description.TextTrimming=TextTrimming.CharacterEllipsis;description.LineHeight=17;description.MaxHeight=34;description.Margin=new Thickness(0,5,0,5);description.ToolTip=plugin.Description;details.Children.Add(description);
+        var description=builtin ? Tema.Scritta(plugin.Description,12,Tema.BiancoTenue) : Tema.ScrittaUtente(plugin.Description ?? I18n.Translate("Estensione community"),12,Tema.BiancoTenue);description.TextWrapping=TextWrapping.Wrap;description.TextTrimming=TextTrimming.CharacterEllipsis;description.LineHeight=17;description.MaxHeight=34;description.Margin=new Thickness(0,5,0,5);description.ToolTip=plugin.Description;details.Children.Add(description);
         string origin=builtin ? "Vascend · Integrata" : (plugin.Author ?? "Community")+" · "+plugin.Version;
         var status=Tema.Scritta(issues.Count > 0 ? "Conflitto · "+issues.Count+" incompatibilità" : enabled ? origin : "Disattivata · "+origin,11,issues.Count > 0 ? Tema.Pennello(239,169,119,1) : Tema.BiancoTenue);
         status.TextTrimming=TextTrimming.CharacterEllipsis;status.ToolTip=issues.Count > 0 ? string.Join("\n",issues) : origin;details.Children.Add(status);Grid.SetColumn(details,1);layout.Children.Add(details);
@@ -384,7 +396,7 @@ partial class Finestra
 
     void ImportaEstensione()
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "Scegli la cartella contenente extension.json" };
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title=I18n.Translate("Scegli la cartella contenente extension.json") };
         if (dialog.ShowDialog(this) != true) return;
         string temporary = null;
         try
@@ -392,7 +404,7 @@ partial class Finestra
             var extension = LeggiManifest(dialog.FolderName);
             var destination = Path.Combine(ExtensionsDirectory, extension.Id);
             if (Directory.Exists(destination)) throw new Exception("Questa estensione è già installata. Usa un ID diverso per una nuova estensione.");
-            if (!string.IsNullOrWhiteSpace(extension.EntryAssembly) && MessageBox.Show(this,
+            if (!string.IsNullOrWhiteSpace(extension.EntryAssembly) && I18n.ShowMessage(this,
                 $"{extension.Name} contiene codice che verrà eseguito sul tuo computer quando apri la sua pagina.\n\nCaricala solo se ti fidi dell’autore.", "Carica estensione", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
             Directory.CreateDirectory(ExtensionsDirectory);
             temporary = Path.Combine(Stile.Cartella, "extension-import-" + Guid.NewGuid().ToString("N"));
@@ -453,8 +465,8 @@ partial class Finestra
                 return;
             }
             var content = new StackPanel();
-            content.Children.Add(Tema.Scritta(extension.Name, 26, Tema.Bianco, FontWeights.SemiBold));
-            var description = Tema.Scritta(extension.Description ?? "Impostazioni dell’estensione", 14, Tema.BiancoTenue);
+            content.Children.Add(Tema.ScrittaUtente(extension.Name, 26, Tema.Bianco, FontWeights.SemiBold));
+            var description = Tema.ScrittaUtente(extension.Description ?? I18n.Translate("Impostazioni dell’estensione"), 14, Tema.BiancoTenue);
             description.TextWrapping = TextWrapping.Wrap;
             description.Margin = new Thickness(0, 10, 0, 24);
             content.Children.Add(description);
@@ -463,12 +475,12 @@ partial class Finestra
             foreach (var setting in extension.Settings)
             {
                 var value = values.TryGetValue(setting.Key, out var saved) ? saved : setting.Default;
-                var label = Tema.Scritta(setting.Label ?? setting.Key, 14, Tema.Bianco);
+                var label = Tema.ScrittaUtente(setting.Label ?? setting.Key, 14, Tema.Bianco);
                 label.Margin = new Thickness(0, 12, 0, 8);
                 content.Children.Add(label);
                 if (setting.Type == "boolean")
                 {
-                    var check = new CheckBox { Content = "Attiva", Foreground = Tema.Bianco, IsChecked = value.ValueKind == JsonValueKind.True };
+                    var check = new CheckBox { Content = Tema.Scritta("Attiva"), Foreground = Tema.Bianco, IsChecked = value.ValueKind == JsonValueKind.True };
                     content.Children.Add(check);
                     readers[setting.Key] = () => JsonSerializer.SerializeToElement(check.IsChecked == true);
                 }

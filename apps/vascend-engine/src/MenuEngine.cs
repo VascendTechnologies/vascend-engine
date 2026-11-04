@@ -33,6 +33,6 @@ partial class Finestra
         var selected=new Trigger {Property=MenuItem.IsCheckedProperty,Value=true};selected.Setters.Add(new Setter(UIElement.VisibilityProperty,Visibility.Visible,"Check"));selected.Setters.Add(new Setter(UIElement.VisibilityProperty,Visibility.Collapsed,"Icon"));template.Triggers.Add(selected);
         var highlighted=new Trigger {Property=MenuItem.IsHighlightedProperty,Value=true};highlighted.Setters.Add(new Setter(Border.BackgroundProperty,Tema.Pennello(211,218,190,.11),"Surface"));template.Triggers.Add(highlighted);
         var disabled=new Trigger {Property=UIElement.IsEnabledProperty,Value=false};disabled.Setters.Add(new Setter(UIElement.OpacityProperty,.4,"Surface"));template.Triggers.Add(disabled);
-        style.Setters.Add(new Setter(Control.TemplateProperty,template));menu.ItemContainerStyle=style;return menu;
+        style.Setters.Add(new Setter(Control.TemplateProperty,template));menu.ItemContainerStyle=style;I18n.TrackMenu(menu);return menu;
     }
 }

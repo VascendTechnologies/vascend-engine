@@ -23,6 +23,7 @@ class App : Application
                 catch (Exception e) { System.IO.File.AppendAllText(System.IO.Path.Combine(BarraVascend.Stile.Cartella, "applica.log"), $"{DateTime.Now:s} {m}: {e.Message}\n"); }
             return;
         }
+        I18n.InitializeCulture();
         var a = new App { ShutdownMode = ShutdownMode.OnMainWindowClose };
         a.DispatcherUnhandledException += (_, e) =>
         {

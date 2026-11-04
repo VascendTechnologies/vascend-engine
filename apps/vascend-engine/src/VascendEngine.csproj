@@ -19,6 +19,7 @@
     <Resource Include="engine.png" />
     <Resource Include="ide.png" />
     <Resource Include="Assets\Fonts\*.ttf" />
+    <EmbeddedResource Include="Assets\Locales\*.json" />
   </ItemGroup>
   <!-- grafica a pixel, funzioni native e stile condiviso vengono dalla barra -->
   <ItemGroup>

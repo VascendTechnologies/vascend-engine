@@ -173,7 +173,7 @@ partial class Finestra
     RestoreChoices ConfermaDisattivazione()
     {
         RestoreChoices choice=null;
-        var dialog=new Window {Owner=this,Title="Disattiva Vascend Technologies",Width=590,SizeToContent=SizeToContent.Height,ResizeMode=ResizeMode.NoResize,
+        var dialog=new Window {Owner=this,Title=I18n.Translate("Disattiva Vascend Technologies"),Width=590,SizeToContent=SizeToContent.Height,ResizeMode=ResizeMode.NoResize,
             WindowStartupLocation=WindowStartupLocation.CenterOwner,WindowStyle=WindowStyle.None,AllowsTransparency=true,Background=System.Windows.Media.Brushes.Transparent,ShowInTaskbar=false};
         var body=new StackPanel {Margin=new Thickness(24)};
         var title=Tema.Scritta("Disattivare Vascend Technologies?",23,Tema.Bianco,FontWeights.SemiBold);title.TextWrapping=TextWrapping.Wrap;body.Children.Add(title);

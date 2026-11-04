@@ -69,7 +69,7 @@ partial class Finestra
             if(departed) { download?.Dispose(); download=null; lifetime.Dispose(); }
         }
         bool Trust(ExtensionManifest plugin) => string.IsNullOrWhiteSpace(plugin.EntryAssembly) ||
-            MessageBox.Show(this,$"{plugin.Name} contiene codice che verrà eseguito sul tuo computer all’apertura della pagina.\n\nInstalla solo se ti fidi dell’autore del repository.","Installa estensione",MessageBoxButton.OKCancel) == MessageBoxResult.OK;
+            I18n.ShowMessage(this,$"{plugin.Name} contiene codice che verrà eseguito sul tuo computer all’apertura della pagina.\n\nInstalla solo se ti fidi dell’autore del repository.","Installa estensione",MessageBoxButton.OKCancel) == MessageBoxResult.OK;
         async Task Install(ExtensionManifest plugin,Button button)
         {
             if(busy || !Trust(plugin)) return;

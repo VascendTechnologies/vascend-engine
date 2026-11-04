@@ -48,7 +48,7 @@ static class IconeEngine
         var check=Geometry.Parse("M7,12 L10.5,15.5 L17,8.5");check.Freeze();
         var pen=new Pen(Tema.Pennello(19,20,18,1),1.9){StartLineCap=PenLineCap.Round,EndLineCap=PenLineCap.Round,LineJoin=PenLineJoin.Round};pen.Freeze();
         var drawing=new DrawingGroup();using(var dc=drawing.Open()){dc.DrawRectangle(Brushes.Transparent,null,new Rect(0,0,24,24));dc.DrawGeometry(Tema.LimePennello,null,shape);dc.DrawGeometry(null,pen,check);}drawing.Freeze();
-        var source=new DrawingImage(drawing);source.Freeze();return new Image{Source=source,Width=15,Height=15,VerticalAlignment=VerticalAlignment.Center,ToolTip="Estensione ufficiale Vascend"};
+        var source=new DrawingImage(drawing);source.Freeze();return new Image{Source=source,Width=15,Height=15,VerticalAlignment=VerticalAlignment.Center,ToolTip=Tema.Scritta("Estensione ufficiale Vascend",12)};
     }
     public static FrameworkElement Create(string name, double size=16, Brush color=null)
     {

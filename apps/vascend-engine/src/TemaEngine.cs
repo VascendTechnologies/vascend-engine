@@ -19,7 +19,9 @@ static class Tema
     public static SolidColorBrush Pennello(byte r, byte g, byte b, double a) => BarraVascend.Tema.Pennello(r,g,b,a);
     public static T Congela<T>(T value) where T : Freezable { value.Freeze(); return value; }
     public static TextBlock Scritta(string text, double size = 13, Brush color = null, FontWeight? weight = null)
-        => BarraVascend.Tema.Scritta(text,size,color ?? Bianco,weight);
+        => new LocalizedTextBlock {Text=text,FontFamily=Testo,FontSize=size,Foreground=color ?? Bianco,FontWeight=weight ?? FontWeights.Normal,VerticalAlignment=VerticalAlignment.Center};
+    public static TextBlock ScrittaUtente(string text,double size=13,Brush color=null,FontWeight? weight=null)
+        =>BarraVascend.Tema.Scritta(text,size,color ?? Bianco,weight);
     public static TextBlock Glifo(string glyph, double size = 16, Brush color = null)
         => BarraVascend.Tema.Glifo(glyph,size,color ?? Bianco);
 }

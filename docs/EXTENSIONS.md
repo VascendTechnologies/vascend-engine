@@ -1,53 +1,48 @@
-# Estensioni Vascend Engine — API 1
+# Vascend Engine extensions — API 1
 
-La home mostra le estensioni installate. Vascend Technologies è integrata e comprende tutte le sezioni esistenti. Le altre estensioni vivono in `%USERPROFILE%\.config\vascend-engine\extensions\<id>`.
+[Italiano](EXTENSIONS.it.md)
 
-Per installare una community extension, premi **Aggiungi estensione**. Puoi collegare un repository GitHub pubblico oppure scegliere **Carica da cartella**. Le estensioni sono copiate in locale; le impostazioni sono conservate separatamente.
+Extensions live in `%USERPROFILE%\.config\vascend-engine\extensions\<id>`. Each folder contains an `extension.json` manifest and any required files. Settings are stored separately in `extension-settings/<id>.json`.
 
-## Pubblicare e installare da GitHub
+## Installation and updates
 
-1. Crea un repository pubblico con `extension.json` nella radice, usando l'esempio sotto. Per più plugin, crea sottocartelle ognuna con il proprio `extension.json` e i relativi file.
-2. Per una pagina dichiarativa basta il manifest. Per un plugin con codice, includi DLL già compilate, dipendenze e `.deps.json` nella cartella del plugin. Engine non esegue build, script di installazione o comandi dal repository.
-3. L'utente apre **Aggiungi estensione**, incolla `https://github.com/autore/repository` oppure `autore/repository`, poi preme **Trova plugin** e **Installa** sulla voce desiderata. Sono accettati anche URL con suffisso `.git`.
-4. Il campo branch/tag/commit è facoltativo. Lasciandolo vuoto, si segue il branch predefinito del repository. Per i branch con slash, usa il campo dedicato; non incollare URL `/tree/...`.
+Use **Add → From GitHub repository** to enter a public repository URL or `owner/repository`. Engine discovers manifests at the root and in subfolders, then lets you select the plugins to install. The optional reference field accepts a branch, tag or commit; leaving it blank follows the default branch. Enter repository URLs, not `/tree/...` URLs.
 
-Manifest minimo funzionante, pronto da pubblicare nella radice di una repo:
+Plugins start disabled. Enable them from the catalog after the conflict check. **Connected repositories** records the source, reference and installed commit. Updates are staged and applied on the next app launch, retaining settings. A pinned tag or SHA continues to point at that version.
+
+For local installation, select **Add → From local folder** and choose the folder containing the manifest. Existing IDs are not overwritten.
+
+GitHub installation supports public repositories on github.com without authentication. Submodules, Git LFS pointers and release-only assets are not resolved: required files must be included in the repository snapshot. Limits are 64 MB downloaded, 256 MB extracted, 10,000 archive entries and 100 manifests per repository. Symlinks, unsafe paths and duplicate archive paths are rejected.
+
+## Manifest
 
 ```json
 {
   "apiVersion": 1,
-  "id": "community.mio-plugin",
-  "name": "Il mio plugin",
+  "id": "community.my-plugin",
+  "name": "My plugin",
   "version": "1.0.0",
-  "author": "Il tuo nome",
-  "description": "La mia prima estensione Vascend Engine.",
+  "author": "Your name",
+  "description": "A page with persistent settings.",
   "settings": [
-    { "key": "enabled", "label": "Abilitata", "type": "boolean", "default": true }
-  ]
+    { "key": "enabled", "label": "Enabled", "type": "boolean", "default": true },
+    { "key": "message", "label": "Message", "type": "string", "default": "Hello Vascend" },
+    { "key": "interval", "label": "Interval in seconds", "type": "number", "default": 30 }
+  ],
+  "conflictsWith": [],
+  "exclusiveResources": []
 }
 ```
 
-L'ID deve essere unico: Engine non sovrascrive un'estensione già installata da un'altra origine. Il file manifest descrive il plugin, ma non implementa comportamenti: per quelli serve l'interfaccia `IEngineExtension` descritta sotto. I plugin di Claude Code non sono direttamente compatibili con Engine.
+IDs must be unique and contain lowercase letters, numbers, dots, underscores or hyphens. The built-in ID `vascend-technologies` and legacy ID `vascend-ghiaccio` are reserved. API version 1 is supported.
 
-## Aggiornare un plugin collegato
+Settings support `string`, `boolean` and `number`, each with a unique `key`. The host generates the page and saves values using **Save settings**. Numeric values use a decimal point. Unsaved edits are discarded when navigating away.
 
-Nella stessa pagina trovi **Repository collegati**, con origine, riferimento e commit installato. **Aggiorna** scarica il nuovo snapshot e prepara l'aggiornamento, che si applica al prossimo avvio dell'app. Le impostazioni dell'utente non vengono sostituite. Un tag o SHA fissato continua a indicare quella versione; per seguire nuovi commit usa un branch o lascia il campo vuoto.
+A manifest declares UI and data; it does not implement custom behavior. Use a DLL for that.
 
-Il percorso del plugin all'interno della repo e il suo ID devono restare stabili. La provenienza viene salvata dall'host in `extension-sources/<id>.json`. Gli aggiornamenti pronti restano in `extension-updates/<id>`, e gli errori di applicazione vengono registrati in `errori.log`. Non vengono eseguiti controlli di rete automatici all'avvio. Il controllo con icona di aggiornamento nel catalogo rilegge solo le estensioni locali.
+## Native WPF page
 
-Questa versione supporta repository pubblici su github.com, senza login, submodule o Git LFS. I file devono essere presenti nello snapshot del repository, non solo negli asset di una release. Limiti: 64 MB di download, 256 MB estratti, 10.000 elementi nell'archivio e 100 manifest. Percorsi non validi, link simbolici e duplicati vengono rifiutati. Un plugin nativo ha gli stessi permessi dell'utente e richiede un autore fidato.
-
-## Pagina dichiarativa
-
-Vedi `community-example/extension.json`. Campi: `apiVersion` (1), `id` (lettere minuscole, numeri, punti, trattini, underscore), `name`, `version`, `author`, `description`, `settings`.
-
-Ogni impostazione ha `key`, `label`, `type` (`string`, `boolean`, `number`) e `default`. Engine genera la pagina interna e salva con il pulsante **Salva impostazioni**. I numeri usano il punto decimale. I dati sono separati in `extension-settings/<id>.json` e sono preservati al ritorno al catalogo. Modifiche non salvate vengono scartate quando si cambia pagina.
-
-Un manifest da solo definisce una pagina e dati: per aggiungere comportamenti personalizzati usa una DLL.
-
-## Estensione con codice e pagina WPF libera
-
-Crea una class library per `net8.0-windows10.0.19041.0`, `UseWPF=true`, piattaforma x64. Aggiungi un riferimento al `bin/VascendEngine.dll` installato, con `Private=false` (non distribuire una seconda copia di VascendEngine.dll).
+Create an x64 class library targeting `net8.0-windows10.0.19041.0` with `UseWPF=true`. Reference the installed `VascendEngine.dll` with `Private=false`; do not distribute a second copy of the host assembly.
 
 ```csharp
 using System.Windows;
@@ -58,43 +53,64 @@ public sealed class MyExtension : IEngineExtension
 {
     public FrameworkElement CreatePage(ExtensionContext context)
     {
-        var settings = context.LoadSettings();
-        return new TextBlock { Text = "La mia pagina community", FontSize = 24 };
+        return new TextBlock
+        {
+            Text = context.Language == "it" ? "La mia pagina" : "My page",
+            FontSize = 24
+        };
     }
 }
 ```
 
-Nel manifest aggiungi `"entryAssembly": "MyExtension.dll"` e `"entryType": "MyExtension"`. Copia DLL, dipendenze e file `.deps.json` nella cartella dell'estensione. `ExtensionContext` offre `ExtensionDirectory`, `SettingsPath`, `LoadSettings()` e `SaveSettings(Dictionary<string, JsonElement>)`. La DLL può disegnare controlli, reagire ai clic e implementare le proprie funzioni. Le dipendenze vengono risolte per estensione.
+Add `"entryAssembly": "MyExtension.dll"` and `"entryType": "MyExtension"` to the manifest. Include the compiled DLL, dependencies and `.deps.json` in the extension folder. Engine downloads snapshots; it does not compile them or execute installation scripts.
 
-Le DLL hanno gli stessi permessi del processo: installa codice solo da autori fidati. Il codice si carica all'apertura della scheda. Questa API è orientata alle pagine: non avvia servizi di background all'avvio di Engine. Per i plugin GitHub usa il flusso di aggiornamento sopra. Per una DLL caricata da cartella locale, chiudi Engine, sostituisci i file e riapri. L'host conserva l'istanza dell'estensione durante la sessione; chi crea la pagina deve gestire l'eventuale riuso dei suoi controlli e il ciclo di vita delle risorse.
+`ExtensionContext` exposes:
 
-## Attivazione, conflitti e ripristino
+- `ExtensionDirectory`: installed plugin folder.
+- `SettingsPath`: user settings file.
+- `LoadSettings()` and `SaveSettings(Dictionary<string, JsonElement>)`.
+- `ActivationToken`: cancellation token cancelled when the loaded plugin is disabled.
+- `Language`: host UI language, `en` or `it`.
 
-La home permette di cercare, ordinare e filtrare le estensioni, e di attivarle o disattivarle dalle card. Lo stato persiste in `extension-state.json`. Le nuove installazioni GitHub e locali partono **disattivate**. Anche Vascend Technologies è disattivata per impostazione predefinita; la card integrata ha il simbolo di verifica accanto al nome. I plugin già installati senza una scelta esplicita mantengono il comportamento precedente.
+Native code loads when an enabled extension's page is opened. The host keeps its instance during the session. Plugin authors own the lifecycle of their controls, background work and resources. Custom pages and authored metadata are not automatically translated by the host.
 
-Campi facoltativi del manifest:
+Disabled native plugins are not loaded to render a preview. Their manifest-declared settings remain available in read-only mode; arbitrary native pages require activation.
 
-```json
-{
-  "conflictsWith": ["community.altro-plugin"],
-  "exclusiveResources": ["desktop.widgets"]
-}
+## Lifecycle and restoration
+
+Implement `IEngineExtensionLifecycle` to handle `OnActivated(ExtensionContext)` and `OnDeactivated()`. Stop background work, unsubscribe events and release resources on deactivation. Use `ActivationToken` for cooperative cancellation.
+
+Older plugins without this lifecycle contract may require an Engine restart before they can be enabled again. Blocking their page cannot forcibly stop arbitrary code that has already started.
+
+Optionally implement `IEngineExtensionRestoration`:
+
+```csharp
+string RestorationDescription { get; }
+Task RestoreSettingsAsync(CancellationToken cancellationToken);
 ```
 
-`conflictsWith` elenca ID incompatibili, controllati in entrambi i sensi. `exclusiveResources` dichiara risorse che il plugin gestisce in esclusiva. Nomi uguali e gerarchie sovrapposte (per esempio `desktop.widgets` e `desktop.widgets.clock`) sono in conflitto. L'attivazione viene bloccata finché l'altra estensione resta attiva. Gli ID duplicati sono bloccati.
+The host can offer to restore settings when a loaded plugin is disabled. The plugin is responsible for retaining and restoring previous values.
 
-Vascend Technologies ha ID `vascend-technologies` e riserva `desktop.bar`, `desktop.widgets`, `desktop.island`, `system.appearance`, `editor.vscode.theme`, `editor.vascend.theme`, `terminal.theme`. L'ID precedente `vascend-ghiaccio` resta riservato. I manifest devono dichiarare correttamente risorse e incompatibilità: Engine non può dedurre ogni effetto arbitrario di una DLL né rilevare conflitti non dichiarati.
+## Conflict declarations
 
-Una DLL può implementare `IEngineExtensionLifecycle`, con `OnActivated(ExtensionContext)` e `OnDeactivated()`. L'attivazione del codice avviene alla prima apertura della pagina; `OnDeactivated` deve fermare task e servizi, rimuovere eventi e rilasciare le risorse. `ExtensionContext.ActivationToken` viene annullato alla disattivazione. Per le DLL già caricate prive di questo contratto viene richiesto un riavvio prima della riattivazione; il blocco della pagina non può interrompere forzatamente codice arbitrario già avviato.
+`conflictsWith` lists incompatible extension IDs. Checks work in both directions. `exclusiveResources` declares resources a plugin owns exclusively. Equal names and overlapping hierarchies conflict: `desktop.widgets` overlaps with `desktop.widgets.clock`.
 
-Se implementa anche `IEngineExtensionRestoration`, il plugin espone `RestorationDescription` e `Task RestoreSettingsAsync(CancellationToken)`. Alla disattivazione l'utente può scegliere se eseguire il ripristino. Il plugin è responsabile di conservare e ripristinare le proprie impostazioni precedenti.
+The built-in Vascend Technologies extension reserves:
 
-Disattivando Vascend Technologies compare una finestra con **Solo disattiva** oppure **Disattiva e ripristina**. Si può scegliere di mostrare la taskbar di Windows (fermando il guardiano che la nasconde), togliere l'avvio automatico di barra e stile, e ripristinare tema/font delle app per cui esistono file `.prima-vascend-engine.bak`. Il ripristino delle app interessa i campi gestiti da Engine e preserva le altre impostazioni, salvando anche una copia prima del ripristino. Le preferenze taskbar/avvio vengono conservate per la successiva riattivazione. I colori di Windows e i widget salvati non vengono azzerati.
+```text
+desktop.bar
+desktop.widgets
+desktop.island
+system.appearance
+editor.vscode.theme
+editor.vascend.theme
+terminal.theme
+```
 
-## Font incluso
+Activation is blocked while an incompatible extension is enabled. Duplicate IDs are also blocked. Declarations must be accurate: the host cannot infer every side effect of arbitrary plugin code.
 
-La sezione **Vascend Technologies → Font** contiene Vascend Grotesk Mono, incorporato nell'app nei pesi Regular, Medium e SemiBold. Le anteprime usano direttamente i file inclusi; **Installa font incluso** registra i tre pesi per l'utente Windows. Il font è anche in cima ai selettori di editor e terminale, marcato **Incluso**: scegliendolo viene installato prima di impostarlo.
+## Trust and local files
 
-Il menu dell'ordinamento offre Nome A–Z, Nome Z–A, Attive prima e Più recenti. I pulsanti usano morph degli angoli, fondo e pressione, rispettando la preferenza Windows sulle animazioni. Il ritaglio nativo della finestra e quello del contenuto mantengono i vuoti dei bordi a scaletta realmente trasparenti.
+Native plugins run with the user's permissions. Install only code from authors you trust. Claude Code plugins are a different format and are not directly compatible.
 
-Le card sono cliccabili in tutta la loro superficie; l'interruttore è un comando separato. L'estensione integrata rimane consultabile quando è disattivata o in conflitto: navigazione e scorrimento restano disponibili, mentre modifica e applicazione sono bloccate. Per le DLL esterne disattivate, le impostazioni in sola lettura vengono generate dal manifest: la pagina WPF personalizzata non viene eseguita finché il plugin non è attivo.
+The host stores activation in `extension-state.json`, GitHub provenance in `extension-sources/<id>.json`, and pending updates in `extension-updates/<id>`. Update application failures are logged in `errori.log`. The catalog refresh control rereads local extensions; it does not perform automatic GitHub update checks.

@@ -21,7 +21,7 @@ sealed class ExtensionActivation
     public ExtensionActivation(string directory=null) {root=directory ?? Stile.Cartella;}
     public static ExtensionManifest Builtin() => new() {
         Id=ExtensionState.BuiltinId,Name="Vascend Technologies",Author="Vascend",Version="1.0.0",
-        Description="Stile, barra, isola, widget e strumenti. Il tuo ambiente, in un unico posto.",
+        Description="Stile, barra, isola, widget e agenti AI. Il tuo ambiente, in un unico posto.",
         ExclusiveResources=new() {"desktop.bar","desktop.widgets","desktop.island","system.appearance","editor.vscode.theme","editor.vascend.theme","terminal.theme"}
     };
     public List<ExtensionManifest> Installed()
@@ -84,7 +84,7 @@ partial class Finestra
         }
         if(previous && plugins.TryGetValue(id,out var restoreCandidate) && restoreCandidate is IEngineExtensionRestoration restorable)
         {
-            var result=MessageBox.Show(this,restorable.RestorationDescription+"\n\nVuoi ripristinare queste impostazioni dopo la disattivazione?", "Disattiva estensione",MessageBoxButton.YesNoCancel);
+            var result=I18n.ShowMessage(this,restorable.RestorationDescription+"\n\nVuoi ripristinare queste impostazioni dopo la disattivazione?", "Disattiva estensione",MessageBoxButton.YesNoCancel);
             if(result == MessageBoxResult.Cancel)return;
             if(result == MessageBoxResult.Yes)pluginRestore=restorable;
         }
