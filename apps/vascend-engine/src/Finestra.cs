@@ -67,7 +67,7 @@ partial class Finestra : Window, IFinestraPixel
 
         var alto = new Grid { Background = Brushes.Transparent };
         alto.MouseLeftButtonDown += (_, e) => { if (e.ClickCount == 2) Massimizza(); else Trascina(); };
-        var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(28, 0, 250, 0), VerticalAlignment = VerticalAlignment.Center };
+        var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(28, 0, 300, 0), VerticalAlignment = VerticalAlignment.Center };
         var logo = Logo(26);
         logo.Margin = new Thickness(0, 0, 12, 0);
         brand.Children.Add(logo);
@@ -75,19 +75,7 @@ partial class Finestra : Window, IFinestraPixel
         brand.Children.Add(titolo);
         alto.Children.Add(brand);
         var tastiFin = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 8, 0) };
-        var lingue=new StackPanel {Orientation=Orientation.Horizontal,VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(0,0,14,0)};
-        var italiano=Pulsante("IT",()=>I18n.SetLanguage("it"));var english=Pulsante("EN",()=>I18n.SetLanguage("en"));
-        foreach(var languageButton in new[]{italiano,english}){languageButton.Padding=new Thickness(8,4,8,4);languageButton.Margin=new Thickness(0,0,3,0);languageButton.MinWidth=32;lingue.Children.Add(languageButton);}
-        italiano.ToolTip="Italiano";english.ToolTip="English";
-        System.Windows.Automation.AutomationProperties.SetName(italiano,"Italiano");System.Windows.Automation.AutomationProperties.SetName(english,"English");
-        void AggiornaLingua(object sender,EventArgs args)
-        {
-            italiano.BorderBrush=I18n.Language == "it" ? Tema.LimePennello : Contorno;
-            english.BorderBrush=I18n.Language == "en" ? Tema.LimePennello : Contorno;
-        }
-        AggiornaLingua(null,EventArgs.Empty);I18n.LanguageChanged+=AggiornaLingua;
-        Closed+=(_,_)=>I18n.LanguageChanged-=AggiornaLingua;
-        tastiFin.Children.Add(lingue);
+        tastiFin.Children.Add(SelettoreLingua());
         tastiFin.Children.Add(new Tasto(IconeEngine.Create("minimize",14), 40, 32) { Sinistro = () => WindowState = WindowState.Minimized });
         tastiFin.Children.Add(new Tasto(IconeEngine.Create("maximize",14), 40, 32) { Sinistro = Massimizza });
         tastiFin.Children.Add(new Tasto(IconeEngine.Create("close",14), 40, 32) { Sinistro = Close });

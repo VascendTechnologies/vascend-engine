@@ -35,11 +35,13 @@ static class Program
     [STAThread] static void Main(string[] args)
     {
         string temp=Path.Combine(Path.GetTempPath(),"vascend-smoke-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(temp);
-        string preferences=Path.Combine(temp,"preferences.json");File.WriteAllText(preferences,"{\"language\":\"it\",\"keep\":true}");
+        string preferences=Path.Combine(temp,"preferences.json");File.WriteAllText(preferences,"{\"keep\":true}");
         File.WriteAllText(Path.Combine(temp,"extension-state.json"),"{\"vascend-technologies\":false}");
         Environment.SetEnvironmentVariable("VASCEND_ENGINE_PREFERENCES",preferences);
         var assembly=typeof(IEngineExtension).Assembly;var language=assembly.GetType("VascendEngine.I18n");
         void SetLanguage(string value)=>language.GetMethod("SetLanguage").Invoke(null,new object[]{value});
+        Check((string)language.GetProperty("Language").GetValue(null)=="en","English is the default regardless of system language");
+        SetLanguage("it");
         var app=new Application();var type=assembly.GetType("VascendEngine.Finestra");
         var window=(Window)Activator.CreateInstance(type,new object[]{null});
         var activation=Activator.CreateInstance(assembly.GetType("VascendEngine.ExtensionActivation"),new object[]{temp});
@@ -53,7 +55,13 @@ static class Program
             window.Show();Pump();var root=(FrameworkElement)window.Content;
             bool Has(string value)=>Nodes(root).OfType<TextBlock>().Any(label=>label.Text==value);
             Check(Has("Estensioni"),"Italian catalog");
-            SetLanguage("en");Pump();Check(Has("Extensions") && ReferenceEquals(root,window.Content),"English switch preserves page");
+            var englishButton=Nodes(root).OfType<Button>().Single(button=>System.Windows.Automation.AutomationProperties.GetName(button)=="English");
+            var flag=Nodes(root).OfType<Image>().Single(image=>System.Windows.Automation.AutomationProperties.GetName(image)=="Language flag");var previousFlag=flag.Source;
+            englishButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Pump();
+            Check(!ReferenceEquals(previousFlag,flag.Source) && flag.Width>=26,"Visible flag changes with selected language");
+            var indicator=Nodes(root).OfType<Border>().Single(border=>border.Name=="LanguageIndicator");
+            Check(!SystemParameters.ClientAreaAnimation || ((TranslateTransform)indicator.RenderTransform).HasAnimatedProperties && indicator.HasAnimatedProperties,"Language indicator slides and morphs");
+            Check(Has("Extensions") && ReferenceEquals(root,window.Content),"English switch preserves page");
             using(var json=JsonDocument.Parse(File.ReadAllText(preferences)))Check(json.RootElement.GetProperty("language").GetString()=="en" && json.RootElement.GetProperty("keep").GetBoolean(),"Language persistence preserves preferences");
             var menu=(ContextMenu)type.GetMethod("MenuScuro",Private).Invoke(window,null);var item=new MenuItem{Header="Attive"};menu.Items.Add(item);
             menu.PlacementTarget=root;menu.IsOpen=true;Pump();Check((string)item.Header=="Enabled","English menu");menu.IsOpen=false;

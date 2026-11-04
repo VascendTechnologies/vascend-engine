@@ -62,7 +62,7 @@ Launch Engine:
 & "$env:USERPROFILE\.config\vascend-engine\bin\VascendEngine.exe"
 ```
 
-Open an extension card to inspect its settings. Use its switch to enable it. To change the interface language, choose **EN** or **IT** in the title bar.
+Open an extension card to inspect its settings. Use its switch to enable it. To change the interface language, use the flag and **EN / IT** selector in the title bar. English is the default; your selection is saved.
 
 ### Build without installing
 

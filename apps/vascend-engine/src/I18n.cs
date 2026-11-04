@@ -43,7 +43,7 @@ static class I18n
             }
         }
         catch { }
-        return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "it" ? "it" : "en";
+        return "en";
     }
     public static string Translate(string source)
     {
